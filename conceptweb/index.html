@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACCORD / HAPPENINGS — Ivory & Noir Experiential Scenography</title>
+  <style>
+    /* -------------------------------------------------------------
+       IVORY & NOIR LUXURY PALETTE (STUDIOGUSTO HAUTE COUTURE)
+    ------------------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      cursor: none !important; /* Managed by fluid custom magnetic cursor */
+    }
+
+    :root {
+      --noir: #0a0a0b;
+      --noir-card: #111113;
+      --noir-elevated: #18181b;
+      --ivory: #faf8f5;
+      --ivory-dim: #e4dfd7;
+      --ivory-muted: #9e9b94;
+      --gold-champagne: #dfc28d;
+      --gold-glow: rgba(223, 194, 141, 0.28);
+      --border-subtle: rgba(250, 248, 245, 0.09);
+      --border-bright: rgba(250, 248, 245, 0.25);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--noir);
+      color: var(--ivory);
+      font-family: -apple-system, BlinkMacSystemFont, "Didot", "Playfair Display", "Georgia", "Times New Roman", serif;
+      overflow-x: hidden;
+    }
+
+    body {
+      background-color: var(--noir);
+      position: relative;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--gold-champagne);
+      color: var(--noir);
+    }
+
+    /* -------------------------------------------------------------
+       FLUID DUAL MAGNETIC POINTER (DOT + SMOOTH INERTIA RING)
+    ------------------------------------------------------------- */
+    #cursor-dot {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      background: var(--ivory);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s ease, height 0.2s ease, background 0.2s ease;
+    }
+
+    #cursor-ring {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(250, 248, 245, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.3s ease,
+                  background-color 0.3s ease;
+    }
+
+    /* Hovering interactive state */
+    body.is-hovering #cursor-ring {
+      width: 76px;
+      height: 76px;
+      border-color: var(--gold-champagne);
+      background-color: rgba(223, 194, 141, 0.08);
+      backdrop-filter: blur(2px);
+    }
+
+    body.is-hovering #cursor-dot {
+      background: var(--gold-champagne);
+      transform: translate(-50%, -50%) scale(1.6);
+    }
+
+    /* -------------------------------------------------------------
+       CANVAS 3D BACKGROUND
+    ------------------------------------------------------------- */
+    #canvas3d {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .noise-grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.035;
+      background-image: radial-gradient(var(--ivory) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .content-flow {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+    }
+
+    /* -------------------------------------------------------------
+       HEADER & STUDIOGUSTO ROLLER
+    ------------------------------------------------------------- */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 22px 52px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 10, 11, 0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--ivory);
+    }
+
+    .brand-crest {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: rgba(250, 248, 245, 0.02);
+      transition: border-color 0.4s;
+    }
+
+    .brand-crest span {
+      font-size: 13px;
+      font-family: -apple-system, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--gold-champagne);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .brand-tagline {
+      font-size: 9px;
+      letter-spacing: 0.32em;
+      color: var(--ivory-muted);
+      text-transform: uppercase;
+      font-family: monospace;
+      margin-top: 2px;
+    }
+
+    /* Studiogusto Rolling Vertical Text Transition */
+    .roller-wrap {
+      display: inline-block;
+      overflow: hidden;
+      height: 1.15em;
+      vertical-align: bottom;
+    }
+
+    .roller-inner {
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hover-track:hover .roller-inner {
+      transform: translateY(-50%);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
+    nav a {
+      color: var(--ivory-muted);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-family: monospace;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: var(--ivory);
+    }
+
+    /* LUXURY PILL BUTTON */
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 26px;
+      border-radius: 999px;
+      border: 1px solid var(--border-bright);
+      background: rgba(250, 248, 245, 0.03);
+      color: var(--ivory);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: -apple-system, sans-serif;
+      font-weight: 600;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pill-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--ivory);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 0;
+    }
+
+    .pill-btn:hover::before {
+      transform: translateY(0);
+    }
+
+    .pill-btn:hover {
+      color: var(--noir);
+      border-color: var(--ivory);
+      box-shadow: 0 0 30px rgba(250, 248, 245, 0.25);
+    }
+
+    .pill-btn span, .pill-btn svg {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* -------------------------------------------------------------
+       HERO SECTION WITH OVERSIZED IVORY EDITORIAL TYPE
+    ------------------------------------------------------------- */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 52px 90px 52px;
+      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .hero-top-ribbon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      font-family: monospace;
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ivory-muted);
+    }
+
+    .hero-season-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(250, 248, 245, 0.02);
+    }
+
+    .hero-season-badge span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold-champagne);
+      box-shadow: 0 0 10px var(--gold-champagne);
+    }
+
+    .hero-title {
+      font-size: clamp(3.2rem, 8.6vw, 8.8rem);
+      font-weight: 300;
+      line-height: 0.88;
+      letter-spacing: -0.035em;
+      text-transform: uppercase;
+      max-width: 1440px;
+      color: var(--ivory);
+    }
+
+    .hero-title .bold-ivory {
+      font-weight: 700;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-title .italic-gold {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--gold-champagne);
+      text-transform: lowercase;
+      letter-spacing: 0;
+      padding-right: 12px;
+    }
+
+    .hero-footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 36px;
+      margin-top: 54px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border-subtle);
+      align-items: end;
+    }
+
+    @media (min-width: 960px) {
+      .hero-footer-grid {
+        grid-template-columns: 7fr 5fr;
+      }
+    }
+
+    .hero-abstract {
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      line-height: 1.6;
+      color: var(--ivory-dim);
+      font-weight: 300;
+      max-width: 760px;
+    }
+
+    .hero-controls {
+      display: flex;
+      justify-content: flex-start;
+      gap: 24px;
+      align-items: center;
+    }
+
+    @media (min-width: 960px) {
+      .hero-controls {
+        justify-content: flex-end;
+      }
+    }
+
+    /* SOUND LEVEL OSCILLATION */
+    .sound-meter {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      height: 14px;
+    }
+
+    .sound-meter span {
+      display: block;
+      width: 2px;
+      background: var(--gold-champagne);
+      animation: bar-wave 1.2s infinite ease-in-out alternate;
+    }
+
+    .sound-meter span:nth-child(1) { height: 4px; animation-delay: 0.1s; }
+    .sound-meter span:nth-child(2) { height: 14px; animation-delay: 0.3s; }
+    .sound-meter span:nth-child(3) { height: 8px; animation-delay: 0.2s; }
+    .sound-meter span:nth-child(4) { height: 11px; animation-delay: 0.4s; }
+
+    @keyframes bar-wave {
+      0% { transform: scaleY(0.2); opacity: 0.3; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* -------------------------------------------------------------
+       SECTION STRUCTURES
+    ------------------------------------------------------------- */
+    section {
+      padding: 130px 52px;
+      position: relative;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-eyebrow {
+      font-family: monospace;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold-champagne);
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .section-heading {
+      font-size: clamp(2.6rem, 5vw, 4.6rem);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+      color: var(--ivory);
+      margin-bottom: 64px;
+    }
+
+    /* -------------------------------------------------------------
+       01 / PHILOSOPHY GRID
+    ------------------------------------------------------------- */
+    .ethos-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 36px;
+      max-width: 1400px;
+    }
+
+    @media (min-width: 880px) {
+      .ethos-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .ethos-card {
+      padding: 42px 34px;
+      border-radius: 20px;
+      background: var(--noir-card);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .ethos-card:hover {
+      border-color: var(--border-bright);
+      background: var(--noir-elevated);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    .ethos-idx {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--gold-champagne);
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .ethos-name {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+      font-family: -apple-system, sans-serif;
+      color: var(--ivory);
+    }
+
+    .ethos-body {
+      color: var(--ivory-muted);
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 300;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* -------------------------------------------------------------
+       02 / ARCHIVE CARDS (IVORY & NOIR 3D PARALLAX)
+    ------------------------------------------------------------- */
+    .curation-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+
+    @media (min-width: 880px) {
+      .curation-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .curation-card {
+      background: var(--noir-card);
+      border-radius: 24px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease-out, border-color 0.4s ease, box-shadow 0.4s ease;
+      position: relative;
+    }
+
+    .curation-card:hover {
+      border-color: var(--border-bright);
+      box-shadow: 0 30px 65px -15px rgba(223, 194, 141, 0.16);
+    }
+
+    .curation-visual {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      background: #060607;
+      overflow: hidden;
+    }
+
+    .curation-visual svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .curation-card:hover .curation-visual svg {
+      transform: scale(1.06);
+    }
+
+    .curation-pill-tag {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(10, 10, 11, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-subtle);
+      font-size: 10px;
+      font-family: monospace;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ivory);
+    }
+
+    .curation-meta-badge {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--ivory-muted);
+      background: rgba(10, 10, 11, 0.7);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .curation-details {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .curation-category {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      font-family: monospace;
+      text-transform: uppercase;
+      color: var(--gold-champagne);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .curation-title {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      color: var(--ivory);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: color 0.3s;
+    }
+
+    .curation-card:hover .curation-title {
+      color: var(--gold-champagne);
+    }
+
+    .curation-synopsis {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ivory-muted);
+      font-weight: 300;
+      font-family: -apple-system, sans-serif;
+      margin-bottom: 28px;
+    }
+
+    .curation-footer {
+      padding-top: 18px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: monospace;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ivory-muted);
+    }
+
+    .curation-arrow {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ivory);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .curation-card:hover .curation-arrow {
+      background: var(--ivory);
+      color: var(--noir);
+      border-color: var(--ivory);
+      transform: rotate(45deg);
+    }
+
+    /* -------------------------------------------------------------
+       03 / DISCIPLINES REPERTOIRE
+    ------------------------------------------------------------- */
+    .discipline-row-group {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .discipline-row {
+      padding: 38px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      align-items: center;
+      transition: padding 0.3s, background 0.3s;
+    }
+
+    @media (min-width: 880px) {
+      .discipline-row {
+        grid-template-columns: 1fr 3fr 5fr;
+      }
+    }
+
+    .discipline-row:hover {
+      padding-left: 18px;
+      background: rgba(250, 248, 245, 0.02);
+    }
+
+    .discipline-num {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--gold-champagne);
+    }
+
+    .discipline-title {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      font-family: -apple-system, sans-serif;
+      color: var(--ivory);
+    }
+
+    .discipline-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ivory-muted);
+      font-weight: 300;
+      font-family: -apple-system, sans-serif;
+    }
+
+    /* -------------------------------------------------------------
+       04 / DOSSIER COMMISSION FORM
+    ------------------------------------------------------------- */
+    .form-panel {
+      max-width: 820px;
+      margin: 0 auto;
+      background: var(--noir-card);
+      border: 1px solid var(--border-bright);
+      border-radius: 28px;
+      padding: clamp(36px, 6vw, 70px);
+      box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.85);
+    }
+
+    .form-panel-head {
+      text-align: center;
+      margin-bottom: 46px;
+    }
+
+    .form-two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    @media (min-width: 680px) {
+      .form-two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    label {
+      font-family: monospace;
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ivory-muted);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: rgba(10, 10, 11, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 15px 18px;
+      color: var(--ivory);
+      font-size: 14px;
+      font-family: -apple-system, sans-serif;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold-champagne);
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    /* -------------------------------------------------------------
+       POPUP DOSSIER MODAL
+    ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 11, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-card {
+      background: var(--noir-card);
+      border: 1px solid var(--border-bright);
+      border-radius: 28px;
+      max-width: 660px;
+      width: 100%;
+      padding: 46px;
+      position: relative;
+      box-shadow: 0 30px 90px rgba(223, 194, 141, 0.12);
+    }
+
+    .modal-exit-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: none;
+      border: none;
+      color: var(--ivory-muted);
+      font-size: 24px;
+      transition: color 0.2s;
+    }
+
+    .modal-exit-btn:hover {
+      color: var(--ivory);
+    }
+
+    /* -------------------------------------------------------------
+       FOOTER
+    ------------------------------------------------------------- */
+    footer {
+      padding: 52px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 28px;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ivory-muted);
+    }
+
+    footer a {
+      color: var(--ivory-muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    footer a:hover {
+      color: var(--ivory);
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 16px 24px; }
+      .hero { padding: 0 24px 60px 24px; }
+      section { padding: 80px 24px; }
+      footer { padding: 32px 24px; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLUID MAGNETIC CUSTOM POINTER -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- 3D GYROSCOPIC CANVAS & ANALOG GRAIN -->
+  <canvas id="canvas3d"></canvas>
+  <div class="noise-grain"></div>
+
+  <div class="content-flow">
+
+    <!-- HEADER -->
+    <header>
+      <a href="#" class="brand-link hover-track">
+        <div class="brand-crest">
+          <span>H</span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name roller-wrap">
+            <div class="roller-inner">
+              <span>Happenings</span>
+              <span style="color: var(--gold-champagne);">Happenings</span>
+            </div>
+          </div>
+          <span class="brand-tagline">ATELIER ACCORD • ITALIA</span>
+        </div>
+      </a>
+
+      <nav>
+        <a href="#ethos">01 / Concept</a>
+        <a href="#curations">02 / Curations</a>
+        <a href="#disciplines">03 / Repertoire</a>
+        <a href="#inquire">04 / Dossier</a>
+      </nav>
+
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="display: inline-flex; align-items: center; gap: 8px; font-family: monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ivory-muted);">
+          <div class="sound-meter">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <span>ACOUSTIC RESONANCE</span>
+        </div>
+
+        <a href="#inquire" class="pill-btn">
+          <span>Initiate</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <main>
+      <section class="hero">
+        <div class="hero-top-ribbon">
+          <div class="hero-season-badge">
+            <span></span>
+            Season MMXXVI • Private Commissions
+          </div>
+          <div>MILAN • VENICE • LAKE COMO</div>
+        </div>
+
+        <h1 class="hero-title">
+          We curate <br>
+          <span class="italic-gold">unrepeatable</span> <br>
+          <span class="bold-ivory">Atmospheres.</span>
+        </h1>
+
+        <div class="hero-footer-grid">
+          <p class="hero-abstract">
+            Rooted in classical Italian culture and forward scenography. Happenings engineers private galas, sonic pavilions, and architectural retreats for patrons who cherish total discretion.
+          </p>
+
+          <div class="hero-controls">
+            <a href="#curations" class="pill-btn" style="padding: 14px 34px;">
+              <span>Explore The Archive</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 01 / PHILOSOPHY -->
+      <section id="ethos">
+        <span class="section-eyebrow">01 // The Manifesto</span>
+        <h2 class="section-heading">Ephemeral by design.</h2>
+
+        <div class="ethos-grid">
+          <div class="ethos-card">
+            <span class="ethos-idx">[ I ]</span>
+            <h3 class="ethos-name">Sensory Equilibrium</h3>
+            <p class="ethos-body">
+              Every gathering is treated as architectural scenography. We balance hyper-precise acoustics, atmospheric misting, bespoke scents, and nocturnal lighting.
+            </p>
+          </div>
+
+          <div class="ethos-card">
+            <span class="ethos-idx">[ II ]</span>
+            <h3 class="ethos-name">Fresco & Monolith</h3>
+            <p class="ethos-body">
+              Juxtaposing 500-year-old frescoed Italian palazzi with minimalist mirror monoliths, razor-fine kinetic lighting, and private cellar tastings.
+            </p>
+          </div>
+
+          <div class="ethos-card">
+            <span class="ethos-idx">[ III ]</span>
+            <h3 class="ethos-name">Absolute Discretion</h3>
+            <p class="ethos-body">
+              We coordinate private aviation slots, mahogany water limousine convoys, and strict NDAs. What happens in the pavilion stays with the present eye.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02 / SELECTED CURATIONS (IVORY & NOIR 3D CARDS) -->
+      <section id="curations">
+        <span class="section-eyebrow">02 // Selected Archive</span>
+        <h2 class="section-heading">Historic Productions</h2>
+
+        <div class="curation-grid">
+          
+          <!-- Event 1 -->
+          <div class="curation-card" onclick="openDetails('Nocturne on Lake Como', 'Villa Balbiano, Como', 'An amphibious performance platform floating 60 meters offshore. 80 guests witnessed a premiere by a Berlin string sextet alongside fireworks in muted crimson.', 'Lakefront Platform')">
+            <div class="curation-visual">
+              <svg viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="400" height="500" fill="#0b0b0d"/>
+                <!-- Ivory Geometry -->
+                <circle cx="200" cy="220" r="140" stroke="#dfc28d" stroke-width="1.2" opacity="0.6"/>
+                <circle cx="200" cy="220" r="90" stroke="#faf8f5" stroke-dasharray="4 4" stroke-width="1" opacity="0.35"/>
+                <circle cx="200" cy="220" r="26" fill="#dfc28d" opacity="0.85"/>
+                <path d="M40 380 Q 200 310 360 380" stroke="#faf8f5" stroke-width="1" opacity="0.4"/>
+                <path d="M60 410 Q 200 340 340 410" stroke="#dfc28d" stroke-width="0.8" opacity="0.3"/>
+                <text x="200" y="460" font-family="monospace" font-size="10" fill="#9e9b94" text-anchor="middle" letter-spacing="4">VILLA BALBIANO // COMO</text>
+              </svg>
+              <div class="curation-pill-tag">01 / COMO</div>
+              <div class="curation-meta-badge">SONIC PLATFORM</div>
+            </div>
+            <div class="curation-details">
+              <div>
+                <span class="curation-category">Acoustic Residency</span>
+                <h3 class="curation-title">Nocturne on Lake Como</h3>
+                <p class="curation-synopsis">A 48-hour sonic residency with floating architecture, silent fireworks, and Michelin culinary choreography.</p>
+              </div>
+              <div class="curation-footer">
+                <span>Access Production Dossier</span>
+                <div class="curation-arrow">↗</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 2 -->
+          <div class="curation-card" onclick="openDetails('The Obsidian Masquerade', 'Grand Canal, Venice', 'Complete spatial transformation of a 15th-century Venetian palazzo into a surrealist hall of mirrors. Hand-forged Murano glass masks, subterranean ambient harpists, and curated elixirs.', 'Palazzo Solstice')">
+            <div class="curation-visual">
+              <svg viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="400" height="500" fill="#0d0d0f"/>
+                <polygon points="200,60 330,350 70,350" stroke="#dfc28d" stroke-width="1.2" opacity="0.55"/>
+                <polygon points="200,130 290,320 110,320" stroke="#faf8f5" stroke-dasharray="3 3" stroke-width="1" opacity="0.5"/>
+                <line x1="200" y1="60" x2="200" y2="350" stroke="#dfc28d" stroke-width="1" opacity="0.3"/>
+                <circle cx="200" cy="230" r="10" fill="#faf8f5" opacity="0.9"/>
+                <text x="200" y="460" font-family="monospace" font-size="10" fill="#9e9b94" text-anchor="middle" letter-spacing="4">GRAND CANAL // VENEZIA</text>
+              </svg>
+              <div class="curation-pill-tag">02 / VENEZIA</div>
+              <div class="curation-meta-badge">PALAZZO TAKEOVER</div>
+            </div>
+            <div class="curation-details">
+              <div>
+                <span class="curation-category">Couture Gala</span>
+                <h3 class="curation-title">The Obsidian Masquerade</h3>
+                <p class="curation-synopsis">Surrealist palace takeover honoring the summer solstice with Murano glass sculptures and spatial choir.</p>
+              </div>
+              <div class="curation-footer">
+                <span>Access Production Dossier</span>
+                <div class="curation-arrow">↗</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 3 -->
+          <div class="curation-card" onclick="openDetails('Val d Orcia Banquet of Fire', 'Siena, Tuscany', 'A monolithic continuous marble banqueting table cutting through golden cypress hills. Five international three-star chefs, rare Chianti vintages, and nocturnal stargazing.', 'Open-Air Monolith')">
+            <div class="curation-visual">
+              <svg viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="400" height="500" fill="#0a0a0c"/>
+                <line x1="40" y1="250" x2="360" y2="250" stroke="#dfc28d" stroke-width="1.8"/>
+                <circle cx="120" cy="250" r="38" stroke="#faf8f5" stroke-width="1" opacity="0.4"/>
+                <circle cx="280" cy="250" r="38" stroke="#faf8f5" stroke-width="1" opacity="0.4"/>
+                <line x1="200" y1="80" x2="200" y2="420" stroke="#dfc28d" stroke-dasharray="6 6" stroke-width="1" opacity="0.4"/>
+                <text x="200" y="460" font-family="monospace" font-size="10" fill="#9e9b94" text-anchor="middle" letter-spacing="4">VAL D'ORCIA // SIENA</text>
+              </svg>
+              <div class="curation-pill-tag">03 / TOSCANA</div>
+              <div class="curation-meta-badge">CYPRESS GROVE</div>
+            </div>
+            <div class="curation-details">
+              <div>
+                <span class="curation-category">Culinary Scenography</span>
+                <h3 class="curation-title">Val d'Orcia Banquet</h3>
+                <p class="curation-synopsis">A 240-foot marble table under the Milky Way, open wood fires, and legendary regional cellar selections.</p>
+              </div>
+              <div class="curation-footer">
+                <span>Access Production Dossier</span>
+                <div class="curation-arrow">↗</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 03 / CAPABILITIES -->
+      <section id="disciplines">
+        <span class="section-eyebrow">03 // The Repertoire</span>
+        <h2 class="section-heading">Disciplines & Craft</h2>
+
+        <div class="discipline-row-group">
+          <div class="discipline-row">
+            <span class="discipline-num">[ 01 ]</span>
+            <div class="discipline-title">Ephemeral Architecture</div>
+            <p class="discipline-desc">Bespoke glasshouse pavilions, cantilevered cliff stages, floating lake barges, and historic heritage restoration engineering.</p>
+          </div>
+
+          <div class="discipline-row">
+            <span class="discipline-num">[ 02 ]</span>
+            <div class="discipline-title">Acoustic & Talent Direction</div>
+            <p class="discipline-desc">Direct engagement of symphonic virtuosos, private recording artists, La Scala soloists, and spatial surround audio production.</p>
+          </div>
+
+          <div class="discipline-row">
+            <span class="discipline-num">[ 03 ]</span>
+            <div class="discipline-title">Gastronomy & Rare Cellars</div>
+            <p class="discipline-desc">Pairing celebrated chefs with small-batch biodynamic harvests, private barrel auctions, and custom ceramic tableware.</p>
+          </div>
+
+          <div class="discipline-row">
+            <span class="discipline-num">[ 04 ]</span>
+            <div class="discipline-title">Discreet Logistics & Fleet</div>
+            <p class="discipline-desc">Turnkey coordination of private aviation slots, mahogany Riva fleets, executive close-protection, and bespoke encrypted invitations.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04 / DOSSIER INQUIRY -->
+      <section id="inquire">
+        <div class="form-panel">
+          <div class="form-panel-head">
+            <span class="section-eyebrow" style="margin-bottom: 8px;">Private Commissions 2026 / 2027</span>
+            <h2 style="font-size: clamp(2.2rem, 3.8vw, 3rem); font-weight: 500; letter-spacing: -0.02em; color: var(--ivory);">Initiate a Dialogue</h2>
+            <p style="color: var(--ivory-muted); font-size: 14px; margin-top: 10px; font-weight: 300; font-family: -apple-system, sans-serif;">We accept 12 commissions worldwide each season. Every gathering is produced from first principles.</p>
+          </div>
+
+          <form id="dossierForm" onsubmit="handleFormSubmit(event)">
+            <div class="form-two-col">
+              <div class="form-group">
+                <label>Patron or House</label>
+                <input type="text" required placeholder="e.g. Maison Laurent / Dr. Rossi">
+              </div>
+              <div class="form-group">
+                <label>Direct Confidential Contact</label>
+                <input type="email" required placeholder="concierge@maison.com">
+              </div>
+            </div>
+
+            <div class="form-two-col">
+              <div class="form-group">
+                <label>Preferred Theatre</label>
+                <select>
+                  <option>Lake Como & Northern Italian Lakes</option>
+                  <option>Venice Lagoon & Historic Palazzi</option>
+                  <option>Tuscan Valleys & Renaissance Estates</option>
+                  <option>Amalfi Cliffside & Capri</option>
+                  <option>International Disclosed Location</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Patron Scale</label>
+                <select>
+                  <option>Intimate Gathering (20 – 60 Patrons)</option>
+                  <option>Grand Gala (60 – 200 Patrons)</option>
+                  <option>Multi-Day Immersion / Brand Residency</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Atmospheric Vision & References</label>
+              <textarea rows="4" placeholder="Describe the sonic atmosphere, milestone context, or sensory references..."></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 12px;">
+              <span style="font-family: monospace; font-size: 11px; color: var(--ivory-muted);">Confidential end-to-end encryption.</span>
+              <button type="submit" class="pill-btn" style="border-color: var(--ivory); background: var(--ivory); color: var(--noir);">
+                <span>Transmit Dossier</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </form>
+
+          <div id="successMsg" style="display: none; margin-top: 28px; padding: 22px; border-radius: 14px; background: rgba(223, 194, 141, 0.12); border: 1px solid var(--gold-champagne); text-align: center; color: var(--gold-champagne); font-family: monospace; font-size: 12px; letter-spacing: 0.1em;">
+            ✓ Transmission confirmed. Our Senior Producer will establish contact within 6 hours.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <span style="color: var(--ivory); font-weight: 700;">HAPPENINGS</span>
+        <span>•</span>
+        <span>ATELIER ACCORD S.R.L.</span>
+        <span>•</span>
+        <span>MILAN • ROMA</span>
+      </div>
+
+      <div style="display: flex; gap: 28px;">
+        <a href="#ethos">Manifesto</a>
+        <a href="#curations">Archive</a>
+        <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="color: var(--gold-champagne);">Top ↑</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- POPUP DETAILS MODAL -->
+  <div class="modal-overlay" id="modalBackdrop">
+    <div class="modal-card">
+      <button class="modal-exit-btn" onclick="closeDetails()">✕</button>
+      <span class="section-eyebrow" id="modalTag" style="display:block; margin-bottom: 8px;">TAG</span>
+      <h3 id="modalTitle" style="font-size: 30px; font-weight: 600; margin-bottom: 8px; color: var(--ivory); font-family: -apple-system, sans-serif;">Title</h3>
+      <div id="modalLoc" style="font-family: monospace; font-size: 11px; color: var(--gold-champagne); margin-bottom: 18px;">Location</div>
+      <p id="modalDesc" style="color: var(--ivory-muted); font-size: 14px; line-height: 1.65; font-weight: 300; font-family: -apple-system, sans-serif; margin-bottom: 30px;">Description</p>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+        <span style="font-family: monospace; font-size: 11px; color: var(--ivory-muted);">Curatorial Archive File</span>
+        <button class="pill-btn" onclick="closeDetails()"><span>Dismiss</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: FLUID DUAL CURSOR + 3D GYROSCOPIC PARTICLES (ZERO EXTERNAL DEPENDENCIES) -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. FLUID MAGNETIC DUAL POINTER (DOT + INERTIAL RING)
+    // -------------------------------------------------------------
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX = mouseX;
+    let ringY = mouseY;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dot.style.left = `${mouseX}px`;
+      dot.style.top = `${mouseY}px`;
+    });
+
+    function updatePointer() {
+      // Smooth lerp trailing
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      ring.style.left = `${ringX}px`;
+      ring.style.top = `${ringY}px`;
+      requestAnimationFrame(updatePointer);
+    }
+    updatePointer();
+
+    // Hover detection on all interactive elements
+    const hoverTargets = document.querySelectorAll('a, button, input, select, textarea, .curation-card, .ethos-card, .discipline-row');
+    hoverTargets.forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('is-hovering'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('is-hovering'));
+    });
+
+    // -------------------------------------------------------------
+    // 2. 3D GYROSCOPIC PARTICLES & CONCENTRIC RINGS (PURE CANVAS)
+    // -------------------------------------------------------------
+    (function() {
+      const canvas = document.getElementById('canvas3d');
+      const ctx = canvas.getContext('2d');
+      let w, h;
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      let targetX = w / 2;
+      let targetY = h / 2;
+      let currX = targetX;
+      let currY = targetY;
+
+      window.addEventListener('mousemove', (e) => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+      });
+
+      // 3D Particles
+      const COUNT = 280;
+      const particles = [];
+      for (let i = 0; i < COUNT; i++) {
+        particles.push({
+          x: (Math.random() - 0.5) * 1600,
+          y: (Math.random() - 0.5) * 1600,
+          z: Math.random() * 1000 + 1,
+          size: Math.random() * 2 + 0.8,
+          color: Math.random() > 0.8 ? '#dfc28d' : '#faf8f5',
+          alpha: Math.random() * 0.6 + 0.2
+        });
+      }
+
+      // Concentric 3D Rings
+      const RING_POINTS = 52;
+      let rotX = 0.5;
+      let rotY = 0.4;
+      let rotZ = 0;
+
+      function draw() {
+        ctx.fillStyle = '#0a0a0b';
+        ctx.fillRect(0, 0, w, h);
+
+        currX += (targetX - currX) * 0.05;
+        currY += (targetY - currY) * 0.05;
+
+        rotX += 0.0025 + (currY - h / 2) * 0.000015;
+        rotY += 0.0035 + (currX - w / 2) * 0.000015;
+        rotZ += 0.0008;
+
+        const fov = 460;
+        const centerX = w * 0.68;
+        const centerY = h * 0.46;
+
+        // Draw 3D Rings
+        ctx.save();
+        ctx.lineWidth = 1.1;
+
+        for (let ringIdx = 0; ringIdx < 3; ringIdx++) {
+          ctx.beginPath();
+          const baseRadius = 260 + (ringIdx - 1) * 45;
+
+          for (let i = 0; i <= RING_POINTS; i++) {
+            const angle = (i / RING_POINTS) * Math.PI * 2;
+            let px = Math.cos(angle) * baseRadius;
+            let py = Math.sin(angle) * baseRadius;
+            let pz = Math.sin(angle * 3 + rotZ * 3) * 28;
+
+            // X rotation
+            let cosX = Math.cos(rotX);
+            let sinX = Math.sin(rotX);
+            let y1 = py * cosX - pz * sinX;
+            let z1 = py * sinX + pz * cosX;
+
+            // Y rotation
+            let cosY = Math.cos(rotY);
+            let sinY = Math.sin(rotY);
+            let x2 = px * cosY + z1 * sinY;
+            let z2 = -px * sinY + z1 * cosY;
+
+            // Z rotation
+            let cosZ = Math.cos(rotZ);
+            let sinZ = Math.sin(rotZ);
+            let x3 = x2 * cosZ - y1 * sinZ;
+            let y3 = x2 * sinZ + y1 * cosZ;
+
+            const depth = fov / (fov + z2 + 300);
+            const sx = centerX + x3 * depth;
+            const sy = centerY + y3 * depth;
+
+            if (i === 0) ctx.moveTo(sx, sy);
+            else ctx.lineTo(sx, sy);
+          }
+
+          if (ringIdx === 1) {
+            ctx.strokeStyle = 'rgba(223, 194, 141, 0.32)'; // Champagne Gold
+          } else {
+            ctx.strokeStyle = 'rgba(250, 248, 245, 0.08)'; // Ivory
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Draw 3D Particles
+        for (let i = 0; i < COUNT; i++) {
+          const p = particles[i];
+          p.z -= 1.6;
+          if (p.z <= 0) p.z = 1000;
+
+          const offsetX = (currX - w / 2) * 0.18;
+          const offsetY = (currY - h / 2) * 0.18;
+
+          const scale = fov / p.z;
+          const sx = (p.x + offsetX) * scale + w / 2;
+          const sy = (p.y + offsetY) * scale + h / 2;
+
+          if (sx >= 0 && sx <= w && sy >= 0 && sy <= h) {
+            ctx.beginPath();
+            ctx.arc(sx, sy, p.size * scale * 0.85, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = (1 - p.z / 1000) * p.alpha;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    })();
+
+    // -------------------------------------------------------------
+    // 3. 3D CARD PARALLAX TILT
+    // -------------------------------------------------------------
+    document.querySelectorAll('.curation-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        const rotX = -(y / (rect.height / 2)) * 6;
+        const rotY = (x / (rect.width / 2)) * 6;
+        card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-6px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+      });
+    });
+
+    // -------------------------------------------------------------
+    // 4. POPUP DETAILS MODAL
+    // -------------------------------------------------------------
+    function openDetails(title, loc, desc, tag) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalLoc').innerText = loc;
+      document.getElementById('modalDesc').innerText = desc;
+      document.getElementById('modalTag').innerText = tag;
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    }
+
+    function closeDetails() {
+      document.getElementById('modalBackdrop').style.display = 'none';
+    }
+
+    document.getElementById('modalBackdrop').addEventListener('click', function(e) {
+      if (e.target === this) closeDetails();
+    });
+
+    // -------------------------------------------------------------
+    // 5. COMMISSION FORM SUBMISSION
+    // -------------------------------------------------------------
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      document.getElementById('dossierForm').style.opacity = '0.35';
+      document.getElementById('dossierForm').style.pointerEvents = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
